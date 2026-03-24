@@ -1,0 +1,7 @@
+.gitignore
+.vscode/**
+**/*.ts
+**/tsconfig*.json
+Banana Language.txt
+examples/**
+node_modules/.cache/**

@@ -1,0 +1,41 @@
+.nana-lang 0.8s	`
+
+app
+	name`: ExampleApp
+	version
+		`=1.0
+	debug
+		`=false
+	users
+		`%
+			theme
+				light
+		`
+			username
+				alice
+			password
+				secret
+			theme
+				dark
+		`
+			username
+				bob
+			password
+				hunter2
+	notes
+		`(Inline raw text with a literal delimiter `` inside.)`
+	address
+		1600 Pennsylvania Ave`&&&
+		Washington, D.C.
+
+`---
+
+table
+	`|
+		First Name
+		Last Name
+		Birth Year
+	`
+		Ada
+		Lovelace
+		`=1815

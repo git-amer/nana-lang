@@ -1,0 +1,219 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Banana Language",
+  "scopeName": "source.nana",
+  "patterns": [
+    {
+      "include": "#header"
+    },
+    {
+      "include": "#blockComment"
+    },
+    {
+      "include": "#multilineRaw"
+    },
+    {
+      "include": "#multilineCode"
+    },
+    {
+      "include": "#multilineQuote"
+    },
+    {
+      "include": "#lineRule"
+    },
+    {
+      "include": "#typedValue"
+    },
+    {
+      "include": "#lineComment"
+    },
+    {
+      "include": "#inlineRaw"
+    },
+    {
+      "include": "#inlineVisuals"
+    },
+    {
+      "include": "#commands"
+    }
+  ],
+  "repository": {
+    "header": {
+      "name": "meta.header.nana",
+      "match": "^\\s*(\\.nana-lang)\\b.*$",
+      "captures": {
+        "1": {
+          "name": "keyword.control.header.nana"
+        }
+      }
+    },
+    "blockComment": {
+      "name": "comment.block.nana",
+      "begin": "`!!",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.begin.nana"
+        }
+      },
+      "end": "!!`",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.end.nana"
+        }
+      }
+    },
+    "lineComment": {
+      "name": "comment.line.nana",
+      "match": "`!.*$"
+    },
+    "multilineRaw": {
+      "name": "string.unquoted.block.nana",
+      "begin": "`\\(\\(",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.nana"
+        }
+      },
+      "end": "^\\s*\\)\\)\\s*`?\\s*$",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.nana"
+        }
+      }
+    },
+    "multilineCode": {
+      "name": "markup.raw.block.nana",
+      "begin": "`\\{\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.raw.begin.nana"
+        }
+      },
+      "end": "^\\s*\\}\\}\\s*$",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.raw.end.nana"
+        }
+      }
+    },
+    "multilineQuote": {
+      "name": "markup.quote.block.nana",
+      "begin": "`''",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.quote.begin.nana"
+        }
+      },
+      "end": "^\\s*''\\s*$",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.quote.end.nana"
+        }
+      }
+    },
+    "lineRule": {
+      "name": "meta.separator.nana",
+      "match": "^\\s*`-{1,3}\\s*$"
+    },
+    "typedValue": {
+      "patterns": [
+        {
+          "name": "constant.language.null.nana",
+          "match": "`=\\s*(null|Null|NULL)\\b"
+        },
+        {
+          "name": "constant.language.boolean.nana",
+          "match": "`=\\s*(true|false|True|False|TRUE|FALSE)\\b",
+          "captures": {
+            "1": {
+              "name": "constant.language.boolean.nana"
+            }
+          }
+        },
+        {
+          "name": "constant.numeric.nana",
+          "match": "`=\\s*([-+]?\\d+(?:\\.\\d+)?)"
+        }
+      ]
+    },
+    "inlineRaw": {
+      "name": "string.unquoted.inline.nana",
+      "begin": "`\\(",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.nana"
+        }
+      },
+      "end": "\\)`",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.nana"
+        }
+      }
+    },
+    "inlineVisuals": {
+      "patterns": [
+        {
+          "name": "markup.heading.nana",
+          "match": "`#{1,3}"
+        },
+        {
+          "name": "markup.italic.nana",
+          "match": "`\\+{1,3}"
+        },
+        {
+          "name": "markup.underline.nana",
+          "match": "`_"
+        },
+        {
+          "name": "markup.strike.nana",
+          "match": "`-{1,3}"
+        },
+        {
+          "name": "markup.quote.nana",
+          "match": "`'"
+        },
+        {
+          "name": "markup.warning.nana",
+          "match": "`\\?"
+        }
+      ]
+    },
+    "commands": {
+      "patterns": [
+        {
+          "name": "keyword.operator.assignment.nana",
+          "match": "`:"
+        },
+        {
+          "name": "punctuation.separator.sequence.nana",
+          "match": "`,"
+        },
+        {
+          "name": "keyword.operator.continuation.nana",
+          "match": "`&&&|`&&|`&"
+        },
+        {
+          "name": "keyword.operator.default.nana",
+          "match": "`%"
+        },
+        {
+          "name": "keyword.operator.table.nana",
+          "match": "`\\|"
+        },
+        {
+          "name": "keyword.operator.list.nana",
+          "match": "`\\*(?:0|I|i|A|a|.)?"
+        },
+        {
+          "name": "constant.character.escape.nana",
+          "match": "``"
+        },
+        {
+          "name": "entity.name.function.special-command.nana",
+          "match": "`\\[[^\\]]+\\]"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "Nana document": {
+    "prefix": "nana",
+    "body": [
+      ".nana-lang 0.8s\t`",
+      "",
+      "${1:root}",
+      "\t${2:child}"
+    ],
+    "description": "Starter Nana document"
+  },
+  "Named value": {
+    "prefix": "nanapair",
+    "body": [
+      "${1:key}`: ${2:value}"
+    ],
+    "description": "Same-line parent/value entry"
+  },
+  "Array item": {
+    "prefix": "nanaitem",
+    "body": [
+      "`",
+      "\t${1:key}`: ${2:value}"
+    ],
+    "description": "Anonymous array item with child entries"
+  }
+}
