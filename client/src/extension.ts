@@ -32,7 +32,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   };
 
   client = new LanguageClient('nanaLanguageServer', 'Banana Language Server', serverOptions, clientOptions);
-  context.subscriptions.push(client.start());
+  const activeClient = client;
+
+  context.subscriptions.push({
+    dispose: () => {
+      client = undefined;
+      return activeClient.dispose();
+    }
+  });
+
+  await activeClient.start();
 }
 
 export async function deactivate(): Promise<void> {
@@ -40,6 +49,7 @@ export async function deactivate(): Promise<void> {
     return;
   }
 
-  await client.stop();
+  const activeClient = client;
   client = undefined;
+  await activeClient.stop();
 }

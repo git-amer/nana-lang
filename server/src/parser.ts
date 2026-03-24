@@ -92,7 +92,7 @@ export function parseDocument(text: string): ParsedDocument {
             kind: activeBlock.kind
           });
         }
-      } else if (activeBlock.type === 'comment' && trimmed.startsWith(header.delimiter + '!!')) {
+      } else if (activeBlock.type === 'comment' && isCommentBlockOpen(trimmed, header.delimiter)) {
         blockStack.push({
           closeToken: '!!' + header.delimiter,
           kind: FoldingRangeKind.Comment,
@@ -145,7 +145,7 @@ export function parseDocument(text: string): ParsedDocument {
     }
 
     if (startsWithCommand(content, header.delimiter, '!!')) {
-      if (!content.includes('!!' + header.delimiter, header.delimiter.length + 2)) {
+      if (isCommentBlockOpen(trimmed, header.delimiter)) {
         blockStack.push({
           closeToken: '!!' + header.delimiter,
           kind: FoldingRangeKind.Comment,
@@ -398,6 +398,10 @@ function hasUnclosedInlineRaw(content: string, delimiter: string): boolean {
   }
 
   return content.indexOf(')' + delimiter, start + marker.length) === -1;
+}
+
+function isCommentBlockOpen(trimmed: string, delimiter: string): boolean {
+  return trimmed === delimiter + '!!';
 }
 
 function endsWithJoin(content: string, delimiter: string): boolean {
