@@ -1,7 +1,11 @@
 .nana-lang 1.0	`
 
 `!!
+
 `### Banana Data Interchange and Markup Language
+
+
+`## What is it
 	a text, data-interchange language with beautification.
 	many features, but intuitive and very easy to begin using.
 	new line—indentation—delimiter. that's all you need to know to start using.
@@ -13,13 +17,19 @@
 
 	think of .nana-lang as a child of YAML and Markdown. it is more efficient and intuitive than YAML, and contains visual beautification for readability and aesthetics.
 
-`# Use it to:
-	hold or transfer data, like JSON and YAML.
-	rich text, like markdown.
-	simple text list, like plain text.
+`## Where to use it
+	store or transfer data, like `+JSON+` and `+YAML+`.
+	rich text, like `+markdown+`. `+italic+`, `++bold++`, `_underline_`, `-strikethrough-`, headings, bullets, and more.
+	plain text. check-off lists.
 
+`## Why use it
+	one simple format that can handle everything from plain text to data interchange.
+	more efficient than YAML.
+	easier to read than JSON.
+	intuitive commands.
+	only 1 character to delimit.
 
-`# How it works:
+`## How it works
 	everything is an item, which is a text object, that may have children.
 	a new line means a new item.
 	an indented line is a child of the closest item above it with less indentation.
@@ -28,9 +38,8 @@
 	all items are trimmed of leading and trailing whitespace, and empty lines are ignored. this allows the user to control whitespace separation to their preference.
 	item value assignments cascade, so the most recent value overwrites any previous value. (This is useful for default values.)
 	if the version has s at the end of it, the file is in strict mode, and will notify of duplicate items.
-
-the indentation method and delimiter are defined in the first line, after the file type declaration and version, you place your preferred indentation (tab by default) and delimiter (backtick by default).
-.nana-lang 0.8s	`
+	the indentation method and delimiter are defined in the first line, after the file type declaration and version, you place your preferred indentation (tab by default) and delimiter (backtick by default).
+		.nana-lang 0.8s	`
 
 `## Standard Commands
 	``			backtick: the literal for the delimiter character. if you need to use the delimiter character in your text value, place backtick after it.
@@ -53,7 +62,7 @@ the indentation method and delimiter are defined in the first line, after the fi
 	`.nana-lang	this ends the data by itself, or allows a redefinition of the version, indentation, and delimiter if those are included.
 
 
-	VISUAL ELEMENTS. These work within comments as well. They are typically ignored by parsers.
+	`# VISUAL ELEMENTS. These work within comments as well. They are typically ignored by parsers.
 		`{		a code block. it should be rendered with a monospaced font and different background. up to closing }`
 		`{{		a raw code block starting on the next line. delimiters are ignored within. up to line with just }}`
 		`###	header, from 1 to 3 #. it increases font size. (inverse from markdown # functionality. more means bigger here).
@@ -66,7 +75,7 @@ the indentation method and delimiter are defined in the first line, after the fi
 		`'		quote emphasis. formatting indicates a quote block until the closing '`. (nestable)
 		`''		a raw quote block starting on next line, up until a line with ''`
 		`?		review emphasis. red formatting to draw attention to errors or immediate problems.
-		BULLETS. 
+		`# BULLETS. 
 		`*		used at end of item. causes all children to have • bullets preceding them, or whatever character immediately follows the *.
 		Numbered Lists. They can be followed by a separator character (like .) and they can increase the depth of the indentation to match the largest number with some padding.
 		`*0		bullets are a 1-based numbered list.
@@ -76,7 +85,7 @@ the indentation method and delimiter are defined in the first line, after the fi
 		`*a		bullets are lowercase english letters. i.e. a b c
 
 
-	Command Character Cheat Sheet:
+	`# Command Character Cheat Sheet:
 	`!		comment
 	`@		
 	`#		heading
