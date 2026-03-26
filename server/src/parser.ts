@@ -104,23 +104,47 @@ export function parseDocument(text: string): ParsedDocument {
     }
 
     if (trimmed === '') {
+      if (pendingJoinLine !== undefined) {
+        diagnostics.push(
+          createDiagnostic(
+            pendingJoinLine,
+            0,
+            lines[pendingJoinLine]?.length ?? 1,
+            'Join commands (`&, `&&, `&&&) must be followed by another content line.',
+            DiagnosticSeverity.Error
+          )
+        );
+        pendingJoinLine = undefined;
+      }
       continue;
+    }
+
+    if (trimmed === HEADER_PREFIX) {
+      break;
     }
 
     if (trimmed.startsWith(HEADER_PREFIX)) {
       header = parseHeader(trimmed, diagnostics, lineIndex);
       indentUnit = header.indentUnit ?? indentUnit;
       stack.length = 0;
+      if (pendingJoinLine !== undefined) {
+        diagnostics.push(
+          createDiagnostic(
+            pendingJoinLine,
+            0,
+            lines[pendingJoinLine]?.length ?? 1,
+            'Join commands (`&, `&&, `&&&) must be followed by another content line.',
+            DiagnosticSeverity.Error
+          )
+        );
+        pendingJoinLine = undefined;
+      }
       continue;
     }
 
     const indentMatch = lineText.match(/^\s*/);
     const indent = indentMatch?.[0] ?? '';
     const content = lineText.slice(indent.length);
-
-    if (pendingJoinLine !== undefined) {
-      pendingJoinLine = undefined;
-    }
 
     if (/\t/.test(indent) && / /.test(indent)) {
       diagnostics.push(
@@ -141,6 +165,18 @@ export function parseDocument(text: string): ParsedDocument {
     const depth = getIndentDepth(indent, indentUnit, lineIndex, diagnostics);
 
     if (startsWithCommand(content, header.delimiter, '!') && !startsWithCommand(content, header.delimiter, '!!')) {
+      if (pendingJoinLine !== undefined) {
+        diagnostics.push(
+          createDiagnostic(
+            pendingJoinLine,
+            0,
+            lines[pendingJoinLine]?.length ?? 1,
+            'Join commands (`&, `&&, `&&&) must be followed by another content line.',
+            DiagnosticSeverity.Error
+          )
+        );
+        pendingJoinLine = undefined;
+      }
       continue;
     }
 
@@ -153,36 +189,84 @@ export function parseDocument(text: string): ParsedDocument {
           type: 'comment'
         });
       }
+      if (pendingJoinLine !== undefined) {
+        diagnostics.push(
+          createDiagnostic(
+            pendingJoinLine,
+            0,
+            lines[pendingJoinLine]?.length ?? 1,
+            'Join commands (`&, `&&, `&&&) must be followed by another content line.',
+            DiagnosticSeverity.Error
+          )
+        );
+        pendingJoinLine = undefined;
+      }
       continue;
     }
 
-    if (startsWithCommand(content, header.delimiter, '((')) {
+    if (trimmed === header.delimiter + '((') {
       blockStack.push({
         closeToken: '))',
         kind: FoldingRangeKind.Region,
         line: lineIndex,
         type: 'raw'
       });
+      if (pendingJoinLine !== undefined) {
+        diagnostics.push(
+          createDiagnostic(
+            pendingJoinLine,
+            0,
+            lines[pendingJoinLine]?.length ?? 1,
+            'Join commands (`&, `&&, `&&&) must be followed by another content line.',
+            DiagnosticSeverity.Error
+          )
+        );
+        pendingJoinLine = undefined;
+      }
       continue;
     }
 
-    if (startsWithCommand(content, header.delimiter, '{{')) {
+    if (trimmed === header.delimiter + '{{') {
       blockStack.push({
         closeToken: '}}',
         kind: FoldingRangeKind.Region,
         line: lineIndex,
         type: 'code'
       });
+      if (pendingJoinLine !== undefined) {
+        diagnostics.push(
+          createDiagnostic(
+            pendingJoinLine,
+            0,
+            lines[pendingJoinLine]?.length ?? 1,
+            'Join commands (`&, `&&, `&&&) must be followed by another content line.',
+            DiagnosticSeverity.Error
+          )
+        );
+        pendingJoinLine = undefined;
+      }
       continue;
     }
 
-    if (startsWithCommand(content, header.delimiter, "''")) {
+    if (trimmed === header.delimiter + "''") {
       blockStack.push({
         closeToken: "''",
         kind: FoldingRangeKind.Region,
         line: lineIndex,
         type: 'quote'
       });
+      if (pendingJoinLine !== undefined) {
+        diagnostics.push(
+          createDiagnostic(
+            pendingJoinLine,
+            0,
+            lines[pendingJoinLine]?.length ?? 1,
+            'Join commands (`&, `&&, `&&&) must be followed by another content line.',
+            DiagnosticSeverity.Error
+          )
+        );
+        pendingJoinLine = undefined;
+      }
       continue;
     }
 
@@ -192,10 +276,14 @@ export function parseDocument(text: string): ParsedDocument {
           lineIndex,
           content.indexOf(header.delimiter),
           content.length,
-          'Inline raw text opened with `(` is missing a closing )`.',
+          'Inline raw text opened with `(` is missing a closing `)`.',
           DiagnosticSeverity.Error
         )
       );
+    }
+
+    if (pendingJoinLine !== undefined) {
+      pendingJoinLine = undefined;
     }
 
     if (endsWithJoin(content, header.delimiter)) {
@@ -392,12 +480,28 @@ function startsWithCommand(content: string, delimiter: string, command: string):
 
 function hasUnclosedInlineRaw(content: string, delimiter: string): boolean {
   const marker = delimiter + '(';
-  const start = content.indexOf(marker);
-  if (start === -1 || content.includes(delimiter + '((')) {
-    return false;
+  const multilineMarker = delimiter + '((';
+
+  let index = 0;
+  while (index < content.length) {
+    const start = content.indexOf(marker, index);
+    if (start === -1) {
+      return false;
+    }
+
+    if (content.startsWith(multilineMarker, start)) {
+      index = start + multilineMarker.length;
+      continue;
+    }
+
+    if (content.indexOf(')' + delimiter, start + marker.length) === -1) {
+      return true;
+    }
+
+    index = start + marker.length;
   }
 
-  return content.indexOf(')' + delimiter, start + marker.length) === -1;
+  return false;
 }
 
 function isCommentBlockOpen(trimmed: string, delimiter: string): boolean {
@@ -405,7 +509,12 @@ function isCommentBlockOpen(trimmed: string, delimiter: string): boolean {
 }
 
 function endsWithJoin(content: string, delimiter: string): boolean {
-  return new RegExp(`${escapeRegExp(delimiter)}(?:&&&|&&|&)\\s*$`).test(content);
+  const match = new RegExp(`${escapeRegExp(delimiter)}(?:&&&|&&|&)\\s*$`).exec(content);
+  if (!match) {
+    return false;
+  }
+
+  return !content.startsWith(delimiter + '`', match.index);
 }
 
 function isMatchingBlockClose(trimmed: string, block: BlockState, delimiter: string): boolean {
@@ -451,6 +560,14 @@ function extractLeadingText(content: string, delimiter: string): { anonymous: bo
   }
 
   if (trimmed.startsWith(delimiter)) {
+    if (trimmed.startsWith(delimiter + '`')) {
+      const unescaped = extractUnescapedText(content, delimiter).trim();
+      return {
+        anonymous: unescaped.length === 0,
+        name: unescaped.length > 0 ? unescaped : '(item)'
+      };
+    }
+
     if (trimmed.startsWith(delimiter + '=')) {
       return {
         anonymous: true,
@@ -472,7 +589,7 @@ function extractLeadingText(content: string, delimiter: string): { anonymous: bo
       };
     }
 
-    if (trimmed.startsWith(delimiter + '---')) {
+    if (new RegExp(`^${escapeRegExp(delimiter)}-{1,3}$`).test(trimmed)) {
       return undefined;
     }
 
@@ -482,6 +599,22 @@ function extractLeadingText(content: string, delimiter: string): { anonymous: bo
     };
   }
 
+  const result = extractUnescapedText(content, delimiter);
+  const name = result.trim();
+  if (name.length === 0) {
+    return {
+      anonymous: true,
+      name: '(item)'
+    };
+  }
+
+  return {
+    anonymous: false,
+    name
+  };
+}
+
+function extractUnescapedText(content: string, delimiter: string): string {
   let result = '';
   for (let index = 0; index < content.length; index += 1) {
     if (content.startsWith(delimiter + '`', index)) {
@@ -502,18 +635,7 @@ function extractLeadingText(content: string, delimiter: string): { anonymous: bo
     result += current;
   }
 
-  const name = result.trim();
-  if (name.length === 0) {
-    return {
-      anonymous: true,
-      name: '(item)'
-    };
-  }
-
-  return {
-    anonymous: false,
-    name
-  };
+  return result;
 }
 
 function finalizeTree(node: ItemNode): number {

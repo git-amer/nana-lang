@@ -28,6 +28,9 @@
 			"include": "#lineComment"
 		},
 		{
+			"include": "#inlineCode"
+		},
+		{
 			"include": "#inlineRaw"
 		},
 		{
@@ -49,7 +52,7 @@
 		},
 		"blockComment": {
 			"name": "comment.block.nana",
-			"begin": "`!!",
+			"begin": "^\\s*`!!\\s*$",
 			"beginCaptures": {
 				"0": {
 					"name": "punctuation.definition.comment.begin.nana"
@@ -57,10 +60,13 @@
 			},
 			"patterns": [
 				{
+					"include": "#inlineVisuals"
+				},
+				{
 					"include": "#blockComment"
 				}
 			],
-			"end": "!!`",
+			"end": "^\\s*!!`\\s*$",
 			"endCaptures": {
 				"0": {
 					"name": "punctuation.definition.comment.end.nana"
@@ -69,11 +75,22 @@
 		},
 		"lineComment": {
 			"name": "comment.line.nana",
-			"match": "`!.*$"
+			"begin": "^\\s*`!(?!\\!).*$",
+			"beginCaptures": {
+				"0": {
+					"name": "comment.line.nana"
+				}
+			},
+			"end": "$",
+			"patterns": [
+				{
+					"include": "#inlineVisuals"
+				}
+			]
 		},
 		"multilineRaw": {
 			"name": "string.unquoted.block.nana",
-			"begin": "`\\(\\(",
+			"begin": "^\\s*`\\(\\(\\s*$",
 			"beginCaptures": {
 				"0": {
 					"name": "punctuation.definition.string.begin.nana"
@@ -88,13 +105,13 @@
 		},
 		"multilineCode": {
 			"name": "markup.raw.block.nana",
-			"begin": "`\\{\\{",
+			"begin": "^\\s*`\\{\\{\\s*$",
 			"beginCaptures": {
 				"0": {
 					"name": "punctuation.definition.raw.begin.nana"
 				}
 			},
-			"end": "^\\s*\\}\\}\\s*$",
+			"end": "^\\s*\\}\\}\\s*`?\\s*$",
 			"endCaptures": {
 				"0": {
 					"name": "punctuation.definition.raw.end.nana"
@@ -103,13 +120,13 @@
 		},
 		"multilineQuote": {
 			"name": "markup.quote.block.nana",
-			"begin": "`''",
+			"begin": "^\\s*`''\\s*$",
 			"beginCaptures": {
 				"0": {
 					"name": "punctuation.definition.quote.begin.nana"
 				}
 			},
-			"end": "^\\s*''\\s*$",
+			"end": "^\\s*''\\s*`?\\s*$",
 			"endCaptures": {
 				"0": {
 					"name": "punctuation.definition.quote.end.nana"
@@ -143,7 +160,7 @@
 		},
 		"inlineRaw": {
 			"name": "string.unquoted.inline.nana",
-			"begin": "`\\(",
+			"begin": "`\\((?!\\()",
 			"beginCaptures": {
 				"0": {
 					"name": "punctuation.definition.string.begin.nana"
@@ -153,6 +170,21 @@
 			"endCaptures": {
 				"0": {
 					"name": "punctuation.definition.string.end.nana"
+				}
+			}
+		},
+		"inlineCode": {
+			"name": "markup.raw.inline.nana",
+			"begin": "`\\{(?!\\{)",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.raw.begin.nana"
+				}
+			},
+			"end": "\\}`",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.raw.end.nana"
 				}
 			}
 		},
@@ -196,7 +228,11 @@
 				},
 				{
 					"name": "keyword.operator.continuation.nana",
-					"match": "`&&&|`&&|`&"
+					"match": "`(?:&&&|&&|&)\\s*$"
+				},
+				{
+					"name": "keyword.operator.typed-value.nana",
+					"match": "`="
 				},
 				{
 					"name": "keyword.operator.default.nana",
@@ -215,8 +251,12 @@
 					"match": "``"
 				},
 				{
+					"name": "meta.item.empty.nana",
+					"match": "^\\s*`\\s*$"
+				},
+				{
 					"name": "entity.name.function.special-command.nana",
-					"match": "`\\[[^\\]]+\\]"
+					"match": "`\\[[^\\]]*\\]"
 				}
 			]
 		}
